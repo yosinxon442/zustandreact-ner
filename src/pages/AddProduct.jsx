@@ -31,7 +31,9 @@ const AddProduct = () => {
   return (
     <div className="add-product-page">
       <div className="form-container">
-        <h2><FaPlusCircle /> Yangi mahsulot qo‘shish</h2>
+        <h2>
+          <FaPlusCircle /> Yangi mahsulot qo‘shish
+        </h2>
 
         <form onSubmit={handleSubmit}>
           <div className="input-group">

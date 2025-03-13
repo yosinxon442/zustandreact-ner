@@ -154,17 +154,49 @@ const useStore = create((set) => ({
     }));
   },
 
-  fetchProducts: async () => {
+  // fetchProducts: async () => {
+  //   try {
+  //     const response = await fetch("https://dummyjson.com/products?limit=30");
+  
+  //     if (!response.ok) {
+  //       throw new Error("Server noto‘g‘ri javob qaytardi");
+  //     }
+  
+  //     const data = await response.json();
+  //     const storedProducts = JSON.parse(localStorage.getItem("products")) || [];
+  
+  //     const newProducts = [...storedProducts, ...data.products].filter(
+  //       (product, index, self) =>
+  //         index === self.findIndex((p) => p.id === product.id)
+  //     );
+  
+  //     localStorage.setItem("products", JSON.stringify(newProducts));
+  
+  //     set({ products: newProducts });
+  //   } catch (error) {
+  //     console.error("❌ Mahsulotlarni yuklashda xatolik:", error);
+  //   }
+  // },
+ 
+
+  fetchProducts: async (page = 1, reset = false) => {
     try {
-      const response = await fetch("https://dummyjson.com/products?limit=30");
+      const limit = 21;
+      const skip = (page - 1) * limit;
+      const response = await fetch(`https://dummyjson.com/products?limit=${limit}&skip=${skip}`);                 
   
       if (!response.ok) {
         throw new Error("Server noto‘g‘ri javob qaytardi");
       }
   
       const data = await response.json();
-      const storedProducts = JSON.parse(localStorage.getItem("products")) || [];
-  
+      
+      let storedProducts = JSON.parse(localStorage.getItem("products")) || [];
+      
+      if (reset) {
+        storedProducts = [];
+      }
+      
       const newProducts = [...storedProducts, ...data.products].filter(
         (product, index, self) =>
           index === self.findIndex((p) => p.id === product.id)
@@ -177,6 +209,8 @@ const useStore = create((set) => ({
       console.error("❌ Mahsulotlarni yuklashda xatolik:", error);
     }
   },
+
+
 
   addProduct: (newProduct) => {
     set((state) => {

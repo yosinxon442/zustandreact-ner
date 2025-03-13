@@ -1,25 +1,45 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import useStore from "../context/useStore";
 import { FaUser, FaLock } from "react-icons/fa";
+import useStore from "../context/useStore";
 import "../styles/login.css";
 
 const Login = () => {
   const { loginUser } = useStore();
   const navigate = useNavigate();
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
+  const loginMutation = useMutation(
+    async ({ username, password }) => {
+      const response = await fetch("https://dummyjson.com/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Login yoki parol noto‘g‘ri!");
+      }
+
+      return response.json();
+    },
+    {
+      onSuccess: (data) => {
+        loginUser(data);
+        navigate("/profile");
+      },
+      onError: (error) => {
+        setError(error.message);
+      },
+    }
+  );
+
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      await loginUser(username, password);
-      navigate("/profile");
-    } catch (err) {
-      setError("Login yoki parol noto‘g‘ri!");
-    }
+    loginMutation.mutate({ username, password });
   };
 
   return (
@@ -47,7 +67,9 @@ const Login = () => {
             required
           />
         </div>
-        <button type="submit" className="login-btn">Kirish</button>
+        <button type="submit" className="login-btn">
+          Kirish
+        </button>
       </form>
     </div>
   );

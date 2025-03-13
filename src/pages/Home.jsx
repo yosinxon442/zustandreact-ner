@@ -1,47 +1,54 @@
-import { useEffect } from "react";
-import useStore from "../context/useStore";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Pagination } from "antd";
 import ProductCard from "../components/ProductCard";
+import useStore from "../context/useStore";
 import "../styles/home.css";
 
-const Home = () => {
-  const { products, user, deleteProduct, editProduct, notifications, fetchProducts } =
-    useStore();
+const Products = () => {
+  const { user } = useStore();
+  const [page, setPage] = React.useState(1);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  const fetchProducts = async (page) => {
+    const limit = 21;
+    const skip = (page - 1) * limit;
+    const response = await fetch(`https://dummyjson.com/products?limit=${limit}&skip=${skip}`);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return response.json();
+  };
 
-  console.log("Home page yuklandi. Products:", products);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["products", page],
+    queryFn: () => fetchProducts(page),
+    keepPreviousData: true,
+  });
+
+  if (isLoading) return <div className="loader">Loading...</div>;
+  if (isError) return <div className="error-message">Error fetching products</div>;
 
   return (
     <div>
       <div className="products-grid">
-        {products.length > 0 ? (
-          products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              isLoggedIn={!!user} 
-              onDelete={() => deleteProduct(product.id)}
-              onEdit={(newName, newPrice) =>
-                editProduct(product.id, newName, newPrice)
-              }
-            />
-          ))
-        ) : (
-          <div className="loader"></div>
-        )}
-      </div>
-
-      <div className="notifications">
-        {notifications.map((notif) => (
-          <div key={notif.id} className={`notification ${notif.type}`}>
-            {notif.message}
-          </div>
+        {data.products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            isLoggedIn={!!user}
+          />
         ))}
+      </div>
+      <div className="pagination">
+        <Pagination
+          defaultCurrent={1}
+          total={data.total}
+          pageSize={21}
+          onChange={(page) => setPage(page)}
+        />
       </div>
     </div>
   );
 };
 
-export default Home;
+export default Products;
