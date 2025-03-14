@@ -4,13 +4,8 @@ import { FaUser, FaSignOutAlt, FaHeart, FaShoppingCart, FaPlus } from "react-ico
 import "../styles/header.css";
 
 const Header = () => {
-  const { user, loginUser, logoutUser, favorites, cart } = useStore();
+  const { user, logoutUser, favorites, cart } = useStore();
   const navigate = useNavigate();
-
-  const handleLogin = () => {
-    navigate("/login");
-    loginUser("Foydalanuvchi");
-  };
 
   return (
     <header className="header">
@@ -30,7 +25,7 @@ const Header = () => {
             </button>
 
             <span onClick={() => navigate("/profile")}>
-              <FaUser /> {user.username}
+              <FaUser /> {user?.username}
             </span>
 
             <button onClick={() => {
@@ -41,7 +36,7 @@ const Header = () => {
             </button>
           </>
         ) : (
-          <button onClick={handleLogin}>
+          <button onClick={() => navigate("/login")}>
             <FaUser /> Kirish
           </button>
         )}

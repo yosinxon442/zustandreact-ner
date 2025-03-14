@@ -1,33 +1,22 @@
-import useStore from "../context/useStore";
-import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
-import "../styles/profile.css";
+import React from "react";
+import useStore from "../store/useStore";
 
 const Profile = () => {
-  const { user, logoutUser } = useStore();
-
-  if (!user) {
-    return (
-      <div className="profile-page">
-        <p className="error-message">⚠️ Foydalanuvchi topilmadi. Iltimos, login qiling.</p>
-      </div>
-    );
-  }
+  const user = useStore((state) => state.user);
+  const logoutUser = useStore((state) => state.logoutUser);
 
   return (
-    <div className="profile-page">
-      <div className="profile-container">
-        <div className="profile-header">
-          <FaUserCircle className="profile-icon" />
-          <h1>{user.username}</h1>
-          <p className="user-email">📧 {user.email || "Email kiritilmagan"}</p>
-        </div>
-
-        <div className="profile-actions">
-          <button className="logout-btn" onClick={logoutUser}>
-            <FaSignOutAlt /> Chiqish
-          </button>
-        </div>
-      </div>
+    <div>
+      <h1>Profil</h1>
+      {user ? (
+        <>
+          <p>Foydalanuvchi: {user.username}</p>
+          <p>Email: {user.email}</p>
+          <button onClick={logoutUser}>Chiqish</button>
+        </>
+      ) : (
+        <h2>Profilga kirish uchun tizimga kiring</h2>
+      )}
     </div>
   );
 };

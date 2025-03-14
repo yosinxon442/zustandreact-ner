@@ -12,8 +12,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
-  const loginMutation = useMutation(
-    async ({ username, password }) => {
+  const loginMutation = useMutation({
+    mutationFn: async ({ username, password }) => {
       const response = await fetch("https://dummyjson.com/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -26,19 +26,18 @@ const Login = () => {
 
       return response.json();
     },
-    {
-      onSuccess: (data) => {
-        loginUser(data);
-        navigate("/profile");
-      },
-      onError: (error) => {
-        setError(error.message);
-      },
-    }
-  );
+    onSuccess: (data) => {
+      loginUser(data, data.token);
+      navigate("/profile");
+    },
+    onError: (error) => {
+      setError(error.message);
+    },
+  });
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(null); // Oldingi xatoliklarni tozalash
     loginMutation.mutate({ username, password });
   };
 
@@ -67,8 +66,8 @@ const Login = () => {
             required
           />
         </div>
-        <button type="submit" className="login-btn">
-          Kirish
+        <button type="submit" className="login-btn" disabled={loginMutation.isLoading}>
+          {loginMutation.isLoading ? "Yuklanmoqda..." : "Kirish"}
         </button>
       </form>
     </div>
